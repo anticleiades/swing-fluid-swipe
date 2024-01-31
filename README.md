@@ -6,7 +6,7 @@ Extend the Swing framework with fluid-swipe gesture support. Our aim is to reduc
 ### macOS/OS X case
 Support for the fluid-swipe gesture that is largely used for navigation in many AppKit-built programs, notably Safari, Xcode and Photos, is not offered by JDK – in fact, as far as swipe gestures are concerned, the JDK supports only the discrete ones (namely, 3-finger swipe gestures via  `com.apple.eawt.event`)
 
-[demovideolink]
+https://github.com/anticleiades/swing-fluid-swipe/assets/97770968/a6839873-1d95-43ed-821c-9702ccc23a38
 
 ## Usage
 To start event monitoring:
