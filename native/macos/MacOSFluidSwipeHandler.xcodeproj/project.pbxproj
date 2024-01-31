@@ -1,0 +1,418 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 54;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		DA3E62712B368B800071011F /* MacOSFluidSwipeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = DA3E62702B368B800071011F /* MacOSFluidSwipeHandler.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		DA8BE78A2A759F7C0068F6E9 /* VM.m in Sources */ = {isa = PBXBuildFile; fileRef = DA8BE7862A759F7C0068F6E9 /* VM.m */; };
+		DA8BE78C2A759F7C0068F6E9 /* VM.h in Headers */ = {isa = PBXBuildFile; fileRef = DA8BE7882A759F7C0068F6E9 /* VM.h */; };
+		DAE5C0942B350C97004B8F7C /* LogBridge.c in Sources */ = {isa = PBXBuildFile; fileRef = DAE5C0932B350C97004B8F7C /* LogBridge.c */; };
+		DAE5C0962B350CA7004B8F7C /* LogBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = DAE5C0952B350CA7004B8F7C /* LogBridge.h */; };
+		DAE5C0992B350D39004B8F7C /* CocoaUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = DAE5C0982B350D39004B8F7C /* CocoaUtils.h */; };
+		DAE5C09B2B350E7C004B8F7C /* Utils.h in Headers */ = {isa = PBXBuildFile; fileRef = DAE5C09A2B350E7C004B8F7C /* Utils.h */; };
+		DAE639E72B6AC13E00B8FF31 /* libFluidSwipe.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = DA6D68972A7587D100D6857C /* libFluidSwipe.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DA8BE7922A75AAD80068F6E9 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(PROJECT_DIR)/../../fluidswipe-macos/src/main/resources/eu/giulianogorgone/fluidswipe/handlers/macos/impl";
+			dstSubfolderSpec = 0;
+			files = (
+				DAE639E72B6AC13E00B8FF31 /* libFluidSwipe.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		DA3E62702B368B800071011F /* MacOSFluidSwipeHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MacOSFluidSwipeHandler.m; sourceTree = "<group>"; };
+		DA6D68972A7587D100D6857C /* libFluidSwipe.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libFluidSwipe.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		DA8BE7862A759F7C0068F6E9 /* VM.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VM.m; sourceTree = "<group>"; };
+		DA8BE7882A759F7C0068F6E9 /* VM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VM.h; sourceTree = "<group>"; };
+		DAE5C0932B350C97004B8F7C /* LogBridge.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = LogBridge.c; path = ../common/LogBridge.c; sourceTree = "<group>"; };
+		DAE5C0952B350CA7004B8F7C /* LogBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LogBridge.h; path = ../common/LogBridge.h; sourceTree = "<group>"; };
+		DAE5C0982B350D39004B8F7C /* CocoaUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CocoaUtils.h; sourceTree = "<group>"; };
+		DAE5C09A2B350E7C004B8F7C /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utils.h; path = ../common/Utils.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		DA6D68952A7587D100D6857C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		DA6D687E2A75869800D6857C = {
+			isa = PBXGroup;
+			children = (
+				DAE5C0972B350CAF004B8F7C /* common */,
+				DA8BE7852A759F650068F6E9 /* MacOSFluidSwipeHandler */,
+				DA6D688A2A75875000D6857C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DA6D688A2A75875000D6857C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DA6D68972A7587D100D6857C /* libFluidSwipe.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DA8BE7852A759F650068F6E9 /* MacOSFluidSwipeHandler */ = {
+			isa = PBXGroup;
+			children = (
+				DAE5C0982B350D39004B8F7C /* CocoaUtils.h */,
+				DA8BE7882A759F7C0068F6E9 /* VM.h */,
+				DA8BE7862A759F7C0068F6E9 /* VM.m */,
+				DA3E62702B368B800071011F /* MacOSFluidSwipeHandler.m */,
+			);
+			path = MacOSFluidSwipeHandler;
+			sourceTree = "<group>";
+		};
+		DAE5C0972B350CAF004B8F7C /* common */ = {
+			isa = PBXGroup;
+			children = (
+				DAE5C09A2B350E7C004B8F7C /* Utils.h */,
+				DAE5C0932B350C97004B8F7C /* LogBridge.c */,
+				DAE5C0952B350CA7004B8F7C /* LogBridge.h */,
+			);
+			name = common;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		DA6D68932A7587D100D6857C /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DAE5C0992B350D39004B8F7C /* CocoaUtils.h in Headers */,
+				DAE5C0962B350CA7004B8F7C /* LogBridge.h in Headers */,
+				DAE5C09B2B350E7C004B8F7C /* Utils.h in Headers */,
+				DA8BE78C2A759F7C0068F6E9 /* VM.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		DA6D68962A7587D100D6857C /* FluidSwipe */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DA6D689D2A7587D100D6857C /* Build configuration list for PBXNativeTarget "FluidSwipe" */;
+			buildPhases = (
+				DA6D68932A7587D100D6857C /* Headers */,
+				DA6D68942A7587D100D6857C /* Sources */,
+				DA6D68952A7587D100D6857C /* Frameworks */,
+				DA8BE7922A75AAD80068F6E9 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FluidSwipe;
+			productName = fluidswipe;
+			productReference = DA6D68972A7587D100D6857C /* libFluidSwipe.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		DA6D687F2A75869800D6857C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1520;
+				TargetAttributes = {
+					DA6D68962A7587D100D6857C = {
+						CreatedOnToolsVersion = 14.3.1;
+					};
+				};
+			};
+			buildConfigurationList = DA6D68822A75869800D6857C /* Build configuration list for PBXProject "MacOSFluidSwipeHandler" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = DA6D687E2A75869800D6857C;
+			productRefGroup = DA6D688A2A75875000D6857C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				DA6D68962A7587D100D6857C /* FluidSwipe */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DA6D68942A7587D100D6857C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DAE5C0942B350C97004B8F7C /* LogBridge.c in Sources */,
+				DA3E62712B368B800071011F /* MacOSFluidSwipeHandler.m in Sources */,
+				DA8BE78A2A759F7C0068F6E9 /* VM.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		DA6D68832A75869800D6857C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(JAVA_GEN_HEADERS)";
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				SDKROOT = macosx;
+				SYSTEM_HEADER_SEARCH_PATHS = "";
+			};
+			name = Debug;
+		};
+		DA6D68842A75869800D6857C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(JAVA_GEN_HEADERS)";
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				SDKROOT = macosx;
+				SYSTEM_HEADER_SEARCH_PATHS = "";
+			};
+			name = Release;
+		};
+		DA6D689E2A7587D100D6857C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(JAVA_UTILS_GEN_HEADERS)",
+					"$(JAVA_PLATFORM_GEN_HEADERS)",
+					"$(JAVA_CORE_GEN_HEADERS)",
+				);
+				JAVA_CORE_GEN_HEADERS = "../../fluidswipe-core/build/generated/sources/headers/java/main/";
+				JAVA_HOME = "/Library/Java/JavaVirtualMachines/jdk-17/Contents/Home";
+				JAVA_PLATFORM_GEN_HEADERS = "../../fluidswipe-macos/build/generated/sources/headers/java/main/";
+				JAVA_UTILS_GEN_HEADERS = "../../fluidswipe-utils/build/generated/sources/headers/java/main";
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SYSTEM_HEADER_SEARCH_PATHS = "$(JAVA_HOME)/include/**";
+			};
+			name = Debug;
+		};
+		DA6D689F2A7587D100D6857C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(JAVA_UTILS_GEN_HEADERS)",
+					"$(JAVA_PLATFORM_GEN_HEADERS)",
+					"$(JAVA_CORE_GEN_HEADERS)",
+				);
+				JAVA_CORE_GEN_HEADERS = "../../fluidswipe-core/build/generated/sources/headers/java/main/";
+				JAVA_HOME = "/Library/Java/JavaVirtualMachines/jdk-17/Contents/Home";
+				JAVA_PLATFORM_GEN_HEADERS = "../../fluidswipe-macos/build/generated/sources/headers/java/main/";
+				JAVA_UTILS_GEN_HEADERS = "../../fluidswipe-utils/build/generated/sources/headers/java/main";
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SYSTEM_HEADER_SEARCH_PATHS = "$(JAVA_HOME)/include/**";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		DA6D68822A75869800D6857C /* Build configuration list for PBXProject "MacOSFluidSwipeHandler" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DA6D68832A75869800D6857C /* Debug */,
+				DA6D68842A75869800D6857C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DA6D689D2A7587D100D6857C /* Build configuration list for PBXNativeTarget "FluidSwipe" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DA6D689E2A7587D100D6857C /* Debug */,
+				DA6D689F2A7587D100D6857C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = DA6D687F2A75869800D6857C /* Project object */;
+}
