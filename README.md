@@ -1,5 +1,5 @@
-SwingFluidSwipeAPI
-========
+# SwingFluidSwipeAPI
+[![Maven Central Version](https://img.shields.io/maven-central/v/eu.giulianogorgone/fluidswipe-core)](https://central.sonatype.com/artifact/eu.giulianogorgone/fluidswipe-core)
 
 Extend the Swing framework with fluid-swipe gesture support. Our aim is to reduce the gap between native applications and AWT/Swing applications, providing a more consistent and pleasant UI/UX with animated feedback.
 
@@ -9,6 +9,37 @@ Support for the fluid-swipe gesture that is largely used for navigation in many 
 https://github.com/anticleiades/swing-fluid-swipe/assets/97770968/a6839873-1d95-43ed-821c-9702ccc23a38
 
 ## Usage
+This project is available on Maven Central:
+### Maven
+````xml
+<dependency>
+  <groupId>eu.giulianogorgone</groupId>
+  <artifactId>fluidswipe-core</artifactId>
+  <version>1.0.0</version>
+</dependency>
+````
+### Gradle
+````kotlin
+implementation("eu.giulianogorgone:fluidswipe-core:1.0.0")
+````
+
+You can also use the latest nightly build.
+````kotlin
+repositories {
+    maven {
+        url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots")
+    }
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor(0, "seconds")
+}
+
+dependencies {
+    implementation("eu.giulianogorgone:fluidswipe-core:latest.integration")
+}
+````
+
 To start event monitoring:
 ````java
 FluidSwipe.startEventMonitoring();
@@ -50,7 +81,7 @@ public class NavigableComponent extends JComponent implements FluidSwipeVetoer {
 ````
 
 
-A runnable sample is also provided [here]
+A runnable sample is also provided [here](https://github.com/anticleiades/swing-fluid-swipe-sample)
 
 ### OS settings (macOS/OS X)
 In order for fluid-swipe gesture to work, the following conditions must be met, in normal circumstances:
