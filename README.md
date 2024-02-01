@@ -115,5 +115,5 @@ Any content deemed as abuse or spam will be reported to GitHub.
 
 
 ## License
-This project is licensed under the [Apache 2.0 license]().
+This project is licensed under the [Apache 2.0 license](https://github.com/anticleiades/swing-fluid-swipe/blob/main/LICENSE).
 

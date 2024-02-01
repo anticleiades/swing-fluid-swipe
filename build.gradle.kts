@@ -26,23 +26,6 @@ allprojects {
     apply(plugin = "signing")
     apply(plugin = "maven-publish")
 
-
-    repositories {
-        maven {
-            name = "ossrh"
-
-            val isSnapshot = version.toString().endsWith("SNAPSHOT")
-
-            url = if (isSnapshot) uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-            else uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-
-            credentials {
-                username = ossrhUsername
-                password = ossrhPassword
-            }
-        }
-    }
-
     configure<SigningExtension> {
         val publishing = extensions["publishing"] as PublishingExtension
         sign(publishing.publications)
@@ -82,6 +65,9 @@ allprojects {
             }
             publications {
                 create<MavenPublication>(project.name) {
+                    groupId = pubGroupID
+                    artifactId = project.name
+                    version = pubVersion
                     description = project.description
                     from(project.components["java"])
                     pom {
@@ -110,6 +96,21 @@ allprojects {
                             connection.set("scm:git:git://${scmUrlRoot}/${accountName}/${pubName}.git")
                             developerConnection.set("scm:git:ssh://git@github.com:${accountName}/${pubName}.git")
                         }
+                    }
+                }
+            }
+            repositories {
+                maven {
+                    name = "ossrh"
+
+                    val isSnapshot = version.toString().endsWith("SNAPSHOT")
+
+                    url = if (isSnapshot) uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+                    else uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+
+                    credentials {
+                        username = ossrhUsername
+                        password = ossrhPassword
                     }
                 }
             }
