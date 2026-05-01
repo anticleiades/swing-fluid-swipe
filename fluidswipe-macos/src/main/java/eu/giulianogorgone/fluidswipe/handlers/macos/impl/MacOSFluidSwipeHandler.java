@@ -22,12 +22,11 @@ import eu.giulianogorgone.fluidswipe.handlers.FluidSwipeHandler;
  * @author Giuliano Gorgone (anticleiades)
  */
 public final class MacOSFluidSwipeHandler implements FluidSwipeHandler {
-    private static final String SYNC_MODE_FLAG = "fluidswipe.macosSyncMode";
 
     //==============================================================================================================================//
     // Start of native methods – these methods run on the AppKit Thread. Invoking them makes the caller thread wait for completion. //
     //==============================================================================================================================//
-    private static native void nativeStartEventMonitoring(final boolean syncMode);
+    private static native void nativeStartEventMonitoring();
 
     private static native void nativeStopEventMonitoring();
 
@@ -42,7 +41,7 @@ public final class MacOSFluidSwipeHandler implements FluidSwipeHandler {
 
     @Override
     public void startEventMonitoring() {
-        nativeStartEventMonitoring(Boolean.getBoolean(SYNC_MODE_FLAG));
+        nativeStartEventMonitoring();
     }
 
     @Override

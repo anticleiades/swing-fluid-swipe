@@ -181,9 +181,9 @@ static inline jclass globalRefOfClass(JNIEnv* env, const char *className) {
 /*
  * Class:     eu_giulianogorgone_fluidswipe_handlers_macos_impl_MacOSFluidSwipeHandler
  * Method:    nativeStartEventMonitoring
- * Signature: (Z)V
+ * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_eu_giulianogorgone_fluidswipe_handlers_macos_impl_MacOSFluidSwipeHandler_nativeStartEventMonitoring(JNIEnv* envNotAppKit, jclass class, jboolean sync_mode) {
+JNIEXPORT void JNICALL Java_eu_giulianogorgone_fluidswipe_handlers_macos_impl_MacOSFluidSwipeHandler_nativeStartEventMonitoring(JNIEnv* envNotAppKit, jclass class) {
     JNI_COCOA(EXECUTE_ON_APPKIT_THREAD_AND_WAIT({
         if(libActive || deferStopToGestureCompletion) {
             return;
@@ -196,16 +196,14 @@ JNIEXPORT void JNICALL Java_eu_giulianogorgone_fluidswipe_handlers_macos_impl_Ma
         Class AWTWindow = NSClassFromString(@"AWTWindow");
         CHECK_NULL_RET(AWTWindow)
      
-        if(sync_mode) {
-            LOG(eu_giulianogorgone_fluidswipe_utils_log_Logging_CONFIG, "starting event monitoring; mode=SYNC");
-        } else {
-            LOG(eu_giulianogorgone_fluidswipe_utils_log_Logging_CONFIG, "starting event monitoring; mode=ASYNC");
-        }
+    
+        LOG(eu_giulianogorgone_fluidswipe_utils_log_Logging_CONFIG, "starting event monitoring");
+    
         
         CPlatformWindow = globalRefOfClass(env, "sun/lwawt/macosx/CPlatformWindow");
         CHECK_NULL_RET(CPlatformWindow)
         
-        jmethodID mID_notifyFluidSwipeBegan = (*env)->GetStaticMethodID(env, FluidSwipeDispatcher, sync_mode ? "notifyFluidSwipeBeganSync": "notifyFluidSwipeBeganAsync", sync_mode ? "(Ljava/awt/Window;DDDZ)Z":  "(Ljava/awt/Window;DDDZ)V");
+        jmethodID mID_notifyFluidSwipeBegan = (*env)->GetStaticMethodID(env, FluidSwipeDispatcher, "notifyFluidSwipeBeganAsync", "(Ljava/awt/Window;DDDZ)V");
         mID_dispatchFluidSwipeEvent = (*env)->GetStaticMethodID(env, FluidSwipeDispatcher, "dispatchFluidSwipeEvent", "(DIZ)V");
         jfieldID fID_awtWindow = (*env)->GetFieldID(env, CPlatformWindow, "target", "Ljava/awt/Window;");
         
@@ -243,20 +241,11 @@ JNIEXPORT void JNICALL Java_eu_giulianogorgone_fluidswipe_handlers_macos_impl_Ma
                     
                     LOG(eu_giulianogorgone_fluidswipe_utils_log_Logging_FINEST, "notifying Java clients that a fluid-swipe gesture physically began and may also logically do");
                     
-                    if(sync_mode) {
-                        jboolean gestureMustLogicallyStart = (*env)->CallStaticBooleanMethod(env, FluidSwipeDispatcher, mID_notifyFluidSwipeBegan, awtWindow, [event scrollingDeltaX], location.x, location.y, [event isDirectionInvertedFromDevice]);
-                        BOOL exceptionOccurred = NO;
-                        EXC_CHECK_AND_REPORT(exceptionOccurred = YES);
-                        if(gestureMustLogicallyStart) { // tell Java that a fluid-swipe gesture physically started
-                            logicallyStartGesture(env, event); // the gesture logically starts, as no one blocked it.
-                        } else if(!exceptionOccurred) {
-                            LOG(eu_giulianogorgone_fluidswipe_utils_log_Logging_FINEST, "fluid-swipe veto received");
-                        }
-                    } else { // async mode
-                        currentEvent = [event retain];
-                        // tell Java that a fluid-swipe gesture physically started.
-                        (*env)->CallStaticVoidMethod(env, FluidSwipeDispatcher, mID_notifyFluidSwipeBegan, awtWindow, [currentEvent scrollingDeltaX], location.x, location.y, [currentEvent isDirectionInvertedFromDevice]);
-                    }
+
+                    currentEvent = [event retain];
+                    // tell Java that a fluid-swipe gesture physically started.
+                    (*env)->CallStaticVoidMethod(env, FluidSwipeDispatcher, mID_notifyFluidSwipeBegan, awtWindow, [currentEvent scrollingDeltaX], location.x, location.y, [currentEvent isDirectionInvertedFromDevice]);
+                
                     (*env)->DeleteLocalRef(env, awtWindow);
                     (*env)->DeleteLocalRef(env, platform_window);
                 }

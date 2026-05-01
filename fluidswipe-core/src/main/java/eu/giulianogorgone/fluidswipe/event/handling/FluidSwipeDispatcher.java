@@ -117,38 +117,6 @@ public final class FluidSwipeDispatcher {
         return acceptFluidSwipeRequest;
     }
 
-    // Called by native code in the AppKit Thread when in SYNC mode.
-    private static boolean notifyFluidSwipeBeganSync(Window target, double scrollingDeltaX, double eventX, double eventY,
-                                                     final boolean naturalScrollingEnabled) {
-        try {
-            AtomicBoolean b = new AtomicBoolean(false);
-            Threading.performOnAWTUIThreadAndWait(target, () -> {
-                        b.set(notifyFluidSwipeBeganCommon(target, scrollingDeltaX, eventX, eventY, naturalScrollingEnabled));
-                    }
-            );
-            return b.get();
-        } catch (InterruptedException e) {
-            Logging.logSevere("interrupted", e);
-        } catch (InvocationTargetException e) {
-            SwingUtilities.invokeLater(() -> {
-                final Throwable cause = e.getCause();
-                if (cause instanceof RuntimeException) {
-                    // rethrow
-                    throw (RuntimeException) cause;
-                } else {
-                    // wrap the checked exception
-                    throw new RuntimeException(cause);
-                }
-                /*
-                The following may also be a viable option!
-                final Thread EDT = Thread.currentThread();
-                handle the exception as you would do if this had been thrown in any swing listener.
-                EDT.getUncaughtExceptionHandler().uncaughtException(EDT, e.getCause());
-                */
-            });
-        }
-        return false;
-    }
 
     // This method is called by native code; carries information about the occurring event.
     private static void dispatchFluidSwipeEvent(final double gestureAmount, final int eventPhase, final boolean naturalScrollingEnabled) {
