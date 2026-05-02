@@ -15,12 +15,12 @@ This project is available on Maven Central:
 <dependency>
   <groupId>eu.giulianogorgone</groupId>
   <artifactId>fluidswipe-core</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
 </dependency>
 ````
 ### Gradle
 ````kotlin
-implementation("eu.giulianogorgone:fluidswipe-core:1.0.0")
+implementation("eu.giulianogorgone:fluidswipe-core:1.1.0")
 ````
 
 You can also use the latest nightly build.
