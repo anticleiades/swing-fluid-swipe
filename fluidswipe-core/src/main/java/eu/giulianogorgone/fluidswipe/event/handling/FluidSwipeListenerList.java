@@ -21,18 +21,19 @@ import eu.giulianogorgone.fluidswipe.event.FluidSwipeListener;
 import javax.swing.*;
 import java.awt.*;
 import java.io.Serializable;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
 
 
 /**
- * This class holds the {@code FluidSwipeListener} added to a {@code JComponent} via {@link FluidSwipe#addListenerTo(JComponent, FluidSwipeListener)}.
+ * This class holds the {@code FluidSwipeListener} added to a {@code Component} via {@link FluidSwipe#addListenerTo(Component, FluidSwipeListener)}.
  * This class is not part of the public API.
+ *
  * @author Giuliano Gorgone (anticleiades)
  */
 public final class FluidSwipeListenerList implements Serializable {
-    private static final String KEY_CLIENT_PROP = "it.anticleiades.fluidswipe—FluidSwipeListenerList";
-    public final List<FluidSwipeListener> listenerList = new LinkedList<>();
+    public final         List<FluidSwipeListener>               listenerList = new LinkedList<>();
+    private static final Map<Component, FluidSwipeListenerList> MAP          = Collections.synchronizedMap(new WeakHashMap<>());
 
     private FluidSwipeListenerList() {
     }
@@ -43,15 +44,16 @@ public final class FluidSwipeListenerList implements Serializable {
 
     // return a not-null value if and only if a FluidSwipeListenerList exists.
     public static FluidSwipeListenerList get(final Component component) {
-        Object clientPropVal = component instanceof JComponent ? ((JComponent) component).getClientProperty(KEY_CLIENT_PROP) : null;
-        return clientPropVal instanceof FluidSwipeListenerList ? ((FluidSwipeListenerList) clientPropVal) : null;
+        return MAP.get(component);
     }
 
-    // returns either the new installed holder, or the one already existing found in client props.
-    public static FluidSwipeListenerList installIfNeededAndGet(final JComponent component) {
-        FluidSwipeListenerList listenerList = get(component);
-        if (listenerList == null)
-            component.putClientProperty(KEY_CLIENT_PROP, (listenerList = new FluidSwipeListenerList()));
-        return listenerList;
+    // returns either the new installed holder, or the one already existing found.
+    public static FluidSwipeListenerList installIfNeededAndGet(final Component component) {
+        return MAP.computeIfAbsent(component, __ -> new FluidSwipeListenerList());
+
+    }
+
+    public static void uninstall(final Component component) {
+        MAP.remove(component);
     }
 }

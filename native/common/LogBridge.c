@@ -27,11 +27,11 @@ static inline int canLog(int lvl) {
 }
 
 JNIEXPORT void JNICALL Java_eu_giulianogorgone_fluidswipe_utils_log_Logging_initNative(JNIEnv* env, jclass class, jint level) {
-    CHECK_EX_NULL_RET(class);
+    CHECK_EX_NULL_RET(env, class);
     class_Logging = (jclass) (*env)->NewGlobalRef(env, class);
     (*env)->DeleteLocalRef(env, class);
     mID_log = (*env)->GetStaticMethodID(env, class_Logging, "log", "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)V");
-    CHECK_EX_NULL_RET(mID_log);
+    CHECK_EX_NULL_RET(env, mID_log);
     logLevel = level;
     nativeLoggingEnabled = 1;
 }

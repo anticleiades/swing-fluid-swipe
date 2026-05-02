@@ -23,14 +23,14 @@ import eu.giulianogorgone.fluidswipe.handlers.FluidSwipeHandler;
  */
 public final class MacOSFluidSwipeHandler implements FluidSwipeHandler {
 
-    //==============================================================================================================================//
-    // Start of native methods – these methods run on the AppKit Thread. Invoking them makes the caller thread wait for completion. //
-    //==============================================================================================================================//
+    //====================================================================//
+    // Start of native methods – these methods run on the AppKit Thread.  //
+    //====================================================================//
     private static native void nativeStartEventMonitoring();
 
     private static native void nativeStopEventMonitoring();
 
-    private static native boolean nativeLogicallyStartFluidSwipe();
+    private static native void nativeLogicallyStartFluidSwipe();
     // This call will immediately return. See https://developer.apple.com/documentation/appkit/nsevent/1533300-trackswipeeventwithoptions
 
     private static native void nativeVetoFluidSwipe();
@@ -56,8 +56,8 @@ public final class MacOSFluidSwipeHandler implements FluidSwipeHandler {
     }
 
     @Override
-    public boolean logicallyStartFluidSwipe() {
-        return nativeLogicallyStartFluidSwipe();
+    public void logicallyStartFluidSwipe() {
+        nativeLogicallyStartFluidSwipe();
     }
 
     @Override

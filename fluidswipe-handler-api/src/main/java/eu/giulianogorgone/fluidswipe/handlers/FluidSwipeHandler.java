@@ -38,9 +38,8 @@ public interface FluidSwipeHandler {
     /**
      * This method makes the fluid-swipe event to be ready to logically start.
      *
-     * @return {@code true} if the fluid-swipe event is ready to logically start; {@code false}, if any error is encountered during the process.
      */
-    boolean logicallyStartFluidSwipe();
+    void logicallyStartFluidSwipe();
 
     /**
      * This method discards the incoming fluid-swipe event; it is used to implement the vetoing mechanism.

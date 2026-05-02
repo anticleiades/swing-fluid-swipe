@@ -34,9 +34,7 @@ public final class NopFluidSwipeHandler implements FluidSwipeHandler {
     }
 
     @Override
-    public boolean logicallyStartFluidSwipe() {
-        // to obey to the interface method contract, false is always returned, as it is always not possible to successfully start a fluid-swipe if this handler is used.
-        return false;
+    public void logicallyStartFluidSwipe() {
     }
 
     @Override

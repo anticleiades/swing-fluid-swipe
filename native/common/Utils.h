@@ -18,15 +18,15 @@
 #include "LogBridge.h"
 
 #define STR(str) #str
-#define LOG(lvl, msg) if(nativeLoggingEnabled) {jLog(env, lvl, __FILE_NAME__, __func__, msg, NULL);}
-#define LOG_EX(lvl, msg, throwable) if(nativeLoggingEnabled) {jLog(env, lvl, __FILE_NAME__, __func__, msg, throwable);}
+#define LOG(___env, lvl, msg) if(nativeLoggingEnabled) {jLog(___env, lvl, __FILE_NAME__, __func__, msg, NULL);}
+#define LOG_EX(___env, lvl, msg, throwable) if(nativeLoggingEnabled) {jLog(___env, lvl, __FILE_NAME__, __func__, msg, throwable);}
 
-#define EXC_CHECK_AND_REPORT(code) \
+#define EXC_CHECK_AND_REPORT(___env, code) \
 do { \
-    if((*env)->ExceptionCheck(env)) { \
-        jthrowable thrown = (*env)->ExceptionOccurred(env); \
-        LOG_EX(eu_giulianogorgone_fluidswipe_utils_log_Logging_SEVERE, "exception occurred", thrown); \
-        (*env)->ExceptionClear(env); \
+    if((*___env)->ExceptionCheck(___env)) { \
+        jthrowable thrown = (*___env)->ExceptionOccurred(___env); \
+        LOG_EX(___env, eu_giulianogorgone_fluidswipe_utils_log_Logging_SEVERE, "exception occurred", thrown); \
+        (*___env)->ExceptionClear(___env); \
         {code;}; \
     } \
 } while(0); \
@@ -39,13 +39,13 @@ do { \
 #define CHECK_NULL_RET(ref) \
     CHECK_NULL_RET_V(ref,) \
 
-#define CHECK_EX_NULL_RET_V(ref, ret) \
-    EXC_CHECK_AND_REPORT(); \
+#define CHECK_EX_NULL_RET_V(___env, ref, ret) \
+    EXC_CHECK_AND_REPORT(___env, {}); \
     CHECK_NULL_RET_V(ref, ret) \
 
 
-#define CHECK_EX_NULL_RET(ref) \
-    CHECK_EX_NULL_RET_V(ref,)
+#define CHECK_EX_NULL_RET(___env, ref) \
+    CHECK_EX_NULL_RET_V(___env, ref, )
 
 #define VALIDATE_REF(ref) ((*env)->GetObjectRefType(env, ref) != JNIInvalidRefType ? ref: (jobject) NULL)
 

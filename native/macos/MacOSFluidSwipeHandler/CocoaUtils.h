@@ -18,34 +18,42 @@
 #include "Utils.h"
 
 #define PRINT_VAR(var) NSLog(@STR(var: %@), @(var));
-#define EXECUTE_ON_APPKIT_THREAD_AND_WAIT(code) \
-    dispatch_block_t block = ^{ \
-        code; \
-    }; \
-    if([NSThread isMainThread]) { \
-        block(); \
-    } else { \
-        dispatch_sync(dispatch_get_main_queue(), block); \
-    } \
 
-#define JNI_COCOA_DO_FINALLY(code, finallyCode) \
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init]; \
-    @try { \
-        code; \
-    } @catch (NSException* e) { \
-        NSLog(@"%@", [e callStackSymbols]); \
-    } @finally { \
-        finallyCode; \
-        [pool drain]; \
-    };
+static inline void runOnAppKitThreadAndWait(dispatch_block_t block) {
+    if ([NSThread isMainThread]) {
+        @autoreleasepool {
+            block();
+        }
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            @autoreleasepool {
+                block();
+            }
+        });
+    }
+}
 
+static inline void runOnAppKitThreadAsync(dispatch_block_t block) {
+    if ([NSThread isMainThread]) {
+        @autoreleasepool { 
+            block();
+        }
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            @autoreleasepool {
+                block();
+            }
+        });
+    }
+}
 
 #define CLEAR(ref) \
+do { \
     if(ref) {\
         [ref release]; \
         ref = nil; \
     } \
+} while (0)
 
-#define JNI_COCOA(code) JNI_COCOA_DO_FINALLY(code, )
 
 #endif /* CocoaUtils_h */

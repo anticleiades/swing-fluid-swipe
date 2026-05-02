@@ -17,13 +17,16 @@ package eu.giulianogorgone.fluidswipe.event;
 
 import eu.giulianogorgone.fluidswipe.components.FluidSwipeVetoer;
 import eu.giulianogorgone.fluidswipe.FluidSwipe;
+import eu.giulianogorgone.fluidswipe.utils.log.Logging;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.Serializable;
+import java.util.EventObject;
 
 /**
  * Event indicating that a fluid-swipe action occurred in a given component <code>comp</code>.
- * Let <code>w</code> be a visible <code>Window</code> instance, <code>comp</code> be a <code>JComponent</code> instance such that <code>comp</code> is a descendant of <code>w</code> in the component hierarchy;
+ * Let <code>w</code> be a visible <code>Window</code> instance, <code>comp</code> be a <code>Component</code> instance such that <code>comp</code> is a descendant of <code>w</code> in the component hierarchy;
  * when the physical gesture occurs, assuming the mouse cursor to be positioned over <code>w</code>, let the point <code>(x, y)</code> be the location of the mouse cursor relative to <code>w</code>;
  * let <code>d</code> be a <code>Component</code> instance that is the deepest component in the component hierarchy of <code>w</code> such that its bounds non-trivially intersect the <code>(x, y)</code> point.
  * <br>
@@ -33,7 +36,7 @@ import java.io.Serializable;
  *     <li>event monitoring is turned on by calling {@link FluidSwipe#startEventMonitoring()}</li>
  *     <li>system settings are tuned as described either in <code>README.md</code> or in <code>package-info</code></li>
  *     <li>supported hardware and software are being used as described either in <code>README.md</code> or in <code>package-info</code></li>
- *     <li><code>comp</code> is enabled to receive <code>FluidSwipeEvent</code>s by invoking {@link FluidSwipe#addListenerTo(JComponent, FluidSwipeListener)}.</li>
+ *     <li><code>comp</code> is enabled to receive <code>FluidSwipeEvent</code>s by invoking {@link FluidSwipe#addListenerTo(Component, FluidSwipeListener)}.</li>
  *     <li><code>comp</code> is <code>d</code> or any of its ancestors.</li>
  *     <li>neither <code>d</code> nor any of its ancestors are currently blocking the gesture as vetoer components.</li>
  * </ul>
@@ -58,7 +61,7 @@ import java.io.Serializable;
  * @see FluidSwipeListener
  * @see FluidSwipe
  */
-public final class FluidSwipeEvent implements Serializable {
+public final class FluidSwipeEvent extends EventObject {
     private static final long serialVersionUID = 762156773559898001L;
 
     /**
@@ -176,7 +179,7 @@ public final class FluidSwipeEvent implements Serializable {
      *
      * @see #getGestureAmount()
      */
-    final double gestureAmount;
+    final double  gestureAmount;
 
     /**
      * Indicates whether natural scrolling is enabled at the beginning of the physical gesture.
@@ -189,13 +192,13 @@ public final class FluidSwipeEvent implements Serializable {
      *
      * @see #getGesturePhase()
      */
-    final Phase gesturePhase;
+    final Phase   gesturePhase;
     /**
      * Indicates the gesture state.
      *
      * @see #getGestureState()
      */
-    final State gestureState;
+    final State   gestureState;
 
     /**
      * Indicates the time when this event was created.
@@ -204,17 +207,21 @@ public final class FluidSwipeEvent implements Serializable {
      */
     final long when;
 
-    public FluidSwipeEvent(final Direction logicalDirection, final boolean naturalScrollingEnabled,
-                           final boolean inputDeviceBeingTouched, final double gestureAmount,
-                           final Phase gesturePhase, final State gestureState) {
-        this.logicalDirection = logicalDirection;
-        this.inputDeviceBeingTouched = inputDeviceBeingTouched;
-        this.gestureAmount = gestureAmount;
-        this.naturalScrollingEnabled = naturalScrollingEnabled;
+    public FluidSwipeEvent(
+            final Direction logicalDirection, final boolean naturalScrollingEnabled,
+            final boolean inputDeviceBeingTouched, final double gestureAmount,
+            final Phase gesturePhase, final State gestureState, final Component source
+                          ) {
+        super(source);
+        this.logicalDirection         = logicalDirection;
+        this.inputDeviceBeingTouched  = inputDeviceBeingTouched;
+        this.gestureAmount            = gestureAmount;
+        this.naturalScrollingEnabled  = naturalScrollingEnabled;
         this.physicalGestureDirection = isNaturalScrollingEnabled() ? logicalDirection : logicalDirection.opposite();
-        this.gesturePhase = gesturePhase;
-        this.gestureState = gestureState;
-        this.when = System.currentTimeMillis();
+        this.gesturePhase             = gesturePhase;
+        this.gestureState             = gestureState;
+        this.when                     = System.currentTimeMillis();
+        Logging.logFinest("created: " + this);
     }
 
     /**
@@ -258,6 +265,7 @@ public final class FluidSwipeEvent implements Serializable {
 
     /**
      * Returns whether natural scrolling is enabled <b>at the beginning</b> of the physical gesture.
+     *
      * @return {@code true} if natural scrolling is enabled <b>at the beginning</b> of the physical gesture; {@code false}, otherwise
      */
 
@@ -313,14 +321,14 @@ public final class FluidSwipeEvent implements Serializable {
     @Override
     public String toString() {
         return "FluidSwipeEvent{" +
-                "logicalDirection=" + logicalDirection +
-                ", physicalGestureDirection=" + physicalGestureDirection +
-                ", inputDeviceBeingTouched=" + inputDeviceBeingTouched +
-                ", gestureAmount=" + gestureAmount +
-                ", naturalScrollingEnabled=" + naturalScrollingEnabled +
-                ", gesturePhase=" + gesturePhase +
-                ", gestureState=" + gestureState +
-                ", when=" + when +
-                '}';
+               "logicalDirection=" + logicalDirection +
+               ", physicalGestureDirection=" + physicalGestureDirection +
+               ", inputDeviceBeingTouched=" + inputDeviceBeingTouched +
+               ", gestureAmount=" + gestureAmount +
+               ", naturalScrollingEnabled=" + naturalScrollingEnabled +
+               ", gesturePhase=" + gesturePhase +
+               ", gestureState=" + gestureState +
+               ", when=" + when +
+               '}';
     }
 }

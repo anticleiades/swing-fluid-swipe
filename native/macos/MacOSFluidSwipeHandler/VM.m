@@ -22,8 +22,8 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
 }
 
 JNIEnv* getAppKitEnv(void) {
-    if(![NSThread isMainThread])  {
-         NSLog(@"to be executed only under AppKit Thread; returning NULL!");
+    if(![NSThread isMainThread]) {
+        NSLog(@"to be executed only under AppKit Thread; returning NULL!");
         return NULL;
     }
     static JNIEnv* env = NULL;
@@ -33,7 +33,7 @@ JNIEnv* getAppKitEnv(void) {
         args.name = "AppKit Thread";
         args.group = NULL;
         (*_vm)->AttachCurrentThreadAsDaemon(_vm, (void**) &env, &args);
-        LOG(eu_giulianogorgone_fluidswipe_utils_log_Logging_CONFIG, "attached AppKit thread as daemon");
+        LOG(env, eu_giulianogorgone_fluidswipe_utils_log_Logging_CONFIG, "attached AppKit thread as daemon");
     }
     return env;
 }

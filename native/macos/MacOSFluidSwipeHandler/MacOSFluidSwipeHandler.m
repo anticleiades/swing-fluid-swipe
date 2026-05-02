@@ -28,7 +28,7 @@ static jdouble gestureAmountThreshold = 1.0; // default=1.0
 #endif
 
 static BOOL continueGestureOnFingerRelease = YES; // default=YES
-
+static BOOL gestureWaitingForJavaDecision = NO;
 static BOOL libActive = NO;
 static BOOL deferStopToGestureCompletion = NO;
 static id eventMonitor = nil;
@@ -46,21 +46,25 @@ static inline BOOL hasFlag(jint x, jint flag) {
     return (x & flag) == flag;
 }
 
-static inline void stopLib(JNIEnv* env) {
+static inline void stopLib(JNIEnv* cleanupEnv) {
+    if(!libActive)
+        return;
     [NSEvent removeMonitor: eventMonitor]; // releases the event monitor, no need to manually RR an event monitor — ref: AppKit docs
     eventMonitor = nil;
     libActive = NO;
-    (*env)->DeleteGlobalRef(env, FluidSwipeDispatcher);
-    (*env)->DeleteGlobalRef(env, CPlatformWindow);
+  
+    // global-ref are thread-safe; we can use the env we want
+    (*cleanupEnv)->DeleteGlobalRef(cleanupEnv, FluidSwipeDispatcher);
+    (*cleanupEnv)->DeleteGlobalRef(cleanupEnv, CPlatformWindow);
     deferStopToGestureCompletion = NO;
-    LOG(eu_giulianogorgone_fluidswipe_utils_log_Logging_CONFIG, "event monitoring off");
 }
 
 static inline void cleanup(JNIEnv* env) {
     gestureState = GESTURE_STATE_NOT_YET_DEFINED;
+    gestureWaitingForJavaDecision = NO;
     gestureActive = NO;
-    CLEAR(currentEvent)
-    LOG(eu_giulianogorgone_fluidswipe_utils_log_Logging_FINEST, "done");
+    CLEAR(currentEvent);
+    LOG(env, eu_giulianogorgone_fluidswipe_utils_log_Logging_FINEST, "done");
     if(deferStopToGestureCompletion) {
         stopLib(env);
     }
@@ -85,7 +89,6 @@ static inline jint nsEventPhaseToJavaPhase(NSEventPhase phase) {
 }
 
 #ifdef SUPPORT_GESTURE_THRESHOLD
-
 static inline BOOL thresholdReached(CGFloat gestureAmount) {
     return gestureAmount >= gestureAmountThreshold;
 }
@@ -95,43 +98,48 @@ static inline CGFloat clampGestureAmount(CGFloat gestureAmount) {
 }
 #endif
 
-static inline jboolean logicallyStartGesture(JNIEnv* env, NSEvent* event) {
+static inline void logicallyStartGesture(JNIEnv* _env, NSEvent* event) {
     gestureActive = YES;
-    jboolean isNaturalScrollingEnabled = (jboolean) [event isDirectionInvertedFromDevice];
-    LOG(eu_giulianogorgone_fluidswipe_utils_log_Logging_FINEST, "gesture logically started");
-    @try {
-        [event trackSwipeEventWithOptions: SWIPE_TRACK_OPTIONS dampenAmountThresholdMin:-(1.0) max:1.0 usingHandler:^(CGFloat appKitAmount, NSEventPhase phase, BOOL isComplete, BOOL * _Nonnull stop) {
-            jint javaPhase = nsEventPhaseToJavaPhase(phase);
-            if(hasFlag(javaPhase, eu_giulianogorgone_fluidswipe_event_handling_BridgeConstants_UPDATE_STATE)) {
-                gestureState = javaPhase & eu_giulianogorgone_fluidswipe_event_handling_BridgeConstants_ENDED_MASK;
-                LOG(eu_giulianogorgone_fluidswipe_utils_log_Logging_FINEST, "gesture physically ended; input device is no longer being touched");
-            }
-            CGFloat appKitAbsAmount = fabs(appKitAmount);
-#ifdef SUPPORT_GESTURE_THRESHOLD
-            BOOL forceCompletion = (!continueGestureOnFingerRelease || thresholdReached(appKitAbsAmount)) && gestureState != 0 && !isComplete;
-            CGFloat javaGestureAmount = clampGestureAmount(appKitAbsAmount);
-#else
-            BOOL forceCompletion = !continueGestureOnFingerRelease && gestureState != 0 && !isComplete;
-            #define javaGestureAmount appKitAbsAmount
-#endif
-            if (forceCompletion || isComplete) {
-                (*env)->CallStaticVoidMethod(env, FluidSwipeDispatcher, mID_dispatchFluidSwipeEvent, javaGestureAmount, gestureState, isNaturalScrollingEnabled);
-                if(forceCompletion) {
-                    LOG(eu_giulianogorgone_fluidswipe_utils_log_Logging_FINEST, "forcefully make gesture logically end");
-                    (*stop) = YES;
-                } else
-                    LOG(eu_giulianogorgone_fluidswipe_utils_log_Logging_FINEST, "gesture logically ended");
-                cleanup(env);
-            } else if (javaPhase != eu_giulianogorgone_fluidswipe_event_handling_BridgeConstants_PROGRESSED_NO_MORE_TOUCHING || continueGestureOnFingerRelease) {
-                (*env)->CallStaticVoidMethod(env, FluidSwipeDispatcher, mID_dispatchFluidSwipeEvent, javaGestureAmount, javaPhase, isNaturalScrollingEnabled);
-            }
-            EXC_CHECK_AND_REPORT();
-        }];
-    } @catch (NSException *exception) {
-        NSLog(@"%@", [exception callStackSymbols]);
-        return JNI_FALSE;
+    gestureWaitingForJavaDecision = NO;
+    if (!_env) {
+        NSLog(@"_env is null");
+        return;
     }
-    return JNI_TRUE;
+    jboolean isNaturalScrollingEnabled = (jboolean) [event isDirectionInvertedFromDevice];
+    LOG(_env, eu_giulianogorgone_fluidswipe_utils_log_Logging_FINEST, "gesture logically started");
+    [event trackSwipeEventWithOptions: SWIPE_TRACK_OPTIONS dampenAmountThresholdMin:-(1.0) max:1.0 usingHandler:^(CGFloat appKitAmount, NSEventPhase phase, BOOL isComplete, BOOL * _Nonnull stop) {
+        JNIEnv* blockEnv = getAppKitEnv();
+        if (!blockEnv) {
+            NSLog(@"getAppKitEnv failed (returned null) ");
+            *stop = YES;
+            return;
+        }
+        jint javaPhase = nsEventPhaseToJavaPhase(phase);
+        if(hasFlag(javaPhase, eu_giulianogorgone_fluidswipe_event_handling_BridgeConstants_UPDATE_STATE)) {
+            gestureState = javaPhase & (eu_giulianogorgone_fluidswipe_event_handling_BridgeConstants_COMPLETED | eu_giulianogorgone_fluidswipe_event_handling_BridgeConstants_CANCELED);
+            LOG(blockEnv, eu_giulianogorgone_fluidswipe_utils_log_Logging_FINEST, "gesture physically ended; input device is no longer being touched");
+        }
+        CGFloat appKitAbsAmount = fabs(appKitAmount);
+#ifdef SUPPORT_GESTURE_THRESHOLD
+        BOOL forceCompletion = (!continueGestureOnFingerRelease || thresholdReached(appKitAbsAmount)) && gestureState != 0 && !isComplete;
+        CGFloat javaGestureAmount = clampGestureAmount(appKitAbsAmount);
+#else
+        BOOL forceCompletion = !continueGestureOnFingerRelease && gestureState != 0 && !isComplete;
+        #define javaGestureAmount appKitAbsAmount
+#endif
+        if (forceCompletion || isComplete) {
+            (*blockEnv)->CallStaticVoidMethod(blockEnv, FluidSwipeDispatcher, mID_dispatchFluidSwipeEvent, javaGestureAmount, gestureState, isNaturalScrollingEnabled);
+            if(forceCompletion) {
+                LOG(blockEnv, eu_giulianogorgone_fluidswipe_utils_log_Logging_FINEST, "forcefully make gesture logically end");
+                (*stop) = YES;
+            } else
+                LOG(blockEnv, eu_giulianogorgone_fluidswipe_utils_log_Logging_FINEST, "gesture logically ended");
+            cleanup(blockEnv);
+        } else if (javaPhase != eu_giulianogorgone_fluidswipe_event_handling_BridgeConstants_PROGRESSED_NO_MORE_TOUCHING || continueGestureOnFingerRelease) {
+            (*blockEnv)->CallStaticVoidMethod(blockEnv, FluidSwipeDispatcher, mID_dispatchFluidSwipeEvent, javaGestureAmount, javaPhase, isNaturalScrollingEnabled);
+        }
+        EXC_CHECK_AND_REPORT(blockEnv, {});
+    }];
 }
 
 /*
@@ -140,7 +148,9 @@ static inline jboolean logicallyStartGesture(JNIEnv* env, NSEvent* event) {
  * Signature: (Z)V
  */
 JNIEXPORT void JNICALL Java_eu_giulianogorgone_fluidswipe_handlers_macos_impl_MacOSFluidSwipeHandler_nativeSetContinueGestureOnFingerRelease(JNIEnv * env, jclass class, jboolean v) {
-    JNI_COCOA(EXECUTE_ON_APPKIT_THREAD_AND_WAIT(continueGestureOnFingerRelease = v))
+    runOnAppKitThreadAsync(^ {
+        continueGestureOnFingerRelease = v;
+    });
 }
 
 #ifdef SUPPORT_GESTURE_THRESHOLD
@@ -150,7 +160,9 @@ JNIEXPORT void JNICALL Java_eu_giulianogorgone_fluidswipe_handlers_macos_impl_Ma
  * Signature: (D)V
  */
 JNIEXPORT void JNICALL Java_eu_giulianogorgone_fluidswipe_handlers_macos_impl_MacOSFluidSwipeHandler_nativeSetGestureAmountThreshold(JNIEnv* env, jclass class, jdouble requestedGestureAmountThreshold) {
-    JNI_COCOA(EXECUTE_ON_APPKIT_THREAD_AND_WAIT(gestureAmountThreshold = requestedGestureAmountThreshold))
+    runOnAppKitThreadAsync(^ {
+        gestureAmountThreshold = requestedGestureAmountThreshold;
+    });
 }
 #endif
 
@@ -160,22 +172,45 @@ JNIEXPORT void JNICALL Java_eu_giulianogorgone_fluidswipe_handlers_macos_impl_Ma
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_eu_giulianogorgone_fluidswipe_handlers_macos_impl_MacOSFluidSwipeHandler_nativeStopEventMonitoring(JNIEnv* env, jclass class) {
-    JNI_COCOA(EXECUTE_ON_APPKIT_THREAD_AND_WAIT(
-                                                if(libActive && !deferStopToGestureCompletion) {
-                                                    deferStopToGestureCompletion = gestureActive;
-                                                    if(!deferStopToGestureCompletion) {
-                                                        stopLib(getAppKitEnv());
-                                                    }
-                                                }
-                                                ))
+    runOnAppKitThreadAsync(^ {
+        if(libActive && !deferStopToGestureCompletion) {
+            deferStopToGestureCompletion = gestureActive;
+            if(!deferStopToGestureCompletion) {
+                //cleanupEnv can be any valid env
+                stopLib(env);
+            }
+        }
+    });
+    LOG(env, eu_giulianogorgone_fluidswipe_utils_log_Logging_CONFIG, "event monitoring off");
 }
 
 static inline jclass globalRefOfClass(JNIEnv* env, const char *className) {
     jclass localRefDispatcher = (jclass) (*env)->FindClass(env, className);
-    CHECK_EX_NULL_RET_V(localRefDispatcher, NULL)
+    CHECK_EX_NULL_RET_V(env, localRefDispatcher, NULL);
     jclass global = (jclass) (*env)->NewGlobalRef(env, localRefDispatcher); // create a global reference valid across all threads
     (*env)->DeleteLocalRef(env, localRefDispatcher);
     return global;
+}
+
+static inline bool detectHorizontalSwipe(NSEvent *event) {
+    if (![event hasPreciseScrollingDeltas]) {
+        return false;
+    }
+    
+    CGFloat deltaX = fabs([event scrollingDeltaX]);
+    CGFloat deltaY = fabs([event scrollingDeltaY]);
+    
+    if (deltaX <= deltaY) return false;
+
+    return true;
+}
+
+static inline bool isCandidateFluidSwipe(NSEvent * event) {
+    // paranoia check: it must be a scroll event
+    if ([event type] != NSEventTypeScrollWheel) return false;
+    // ensure it is from magic mouse or trackpad
+    if (![event hasPreciseScrollingDeltas]) return false;
+    return [event phase] == NSEventPhaseBegan && [event momentumPhase] == NSEventPhaseNone && detectHorizontalSwipe(event);
 }
 
 /*
@@ -184,46 +219,56 @@ static inline jclass globalRefOfClass(JNIEnv* env, const char *className) {
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_eu_giulianogorgone_fluidswipe_handlers_macos_impl_MacOSFluidSwipeHandler_nativeStartEventMonitoring(JNIEnv* envNotAppKit, jclass class) {
-    JNI_COCOA(EXECUTE_ON_APPKIT_THREAD_AND_WAIT({
+    runOnAppKitThreadAsync(^{
         if(libActive || deferStopToGestureCompletion) {
             return;
         }
-        JNIEnv* env = getAppKitEnv();
-        FluidSwipeDispatcher = globalRefOfClass(env, "eu/giulianogorgone/fluidswipe/event/handling/FluidSwipeDispatcher");
-        CHECK_NULL_RET(FluidSwipeDispatcher)
-     
+        JNIEnv* _env = getAppKitEnv();
+        if (!_env) {
+            NSLog(@"getAppKitEnv failed (returned null) ");
+            return;
+        }
+        FluidSwipeDispatcher = globalRefOfClass(_env, "eu/giulianogorgone/fluidswipe/event/handling/FluidSwipeDispatcher");
+        CHECK_NULL_RET(FluidSwipeDispatcher);
+        
         SEL SELjavaPlatformWindow = sel_registerName("javaPlatformWindow");
         Class AWTWindow = NSClassFromString(@"AWTWindow");
-        CHECK_NULL_RET(AWTWindow)
-     
-    
-        LOG(eu_giulianogorgone_fluidswipe_utils_log_Logging_CONFIG, "starting event monitoring");
-    
+        CHECK_NULL_RET(AWTWindow);
         
-        CPlatformWindow = globalRefOfClass(env, "sun/lwawt/macosx/CPlatformWindow");
+        
+        LOG(_env, eu_giulianogorgone_fluidswipe_utils_log_Logging_CONFIG, "starting event monitoring");
+        
+        
+        CPlatformWindow = globalRefOfClass(_env, "sun/lwawt/macosx/CPlatformWindow");
         CHECK_NULL_RET(CPlatformWindow)
         
-        jmethodID mID_notifyFluidSwipeBegan = (*env)->GetStaticMethodID(env, FluidSwipeDispatcher, "notifyFluidSwipeBeganAsync", "(Ljava/awt/Window;DDDZ)V");
-        mID_dispatchFluidSwipeEvent = (*env)->GetStaticMethodID(env, FluidSwipeDispatcher, "dispatchFluidSwipeEvent", "(DIZ)V");
-        jfieldID fID_awtWindow = (*env)->GetFieldID(env, CPlatformWindow, "target", "Ljava/awt/Window;");
+        jmethodID mID_notifyFluidSwipeBegan = (*_env)->GetStaticMethodID(_env, FluidSwipeDispatcher, "notifyFluidSwipeBeganAsync", "(Ljava/awt/Window;DDDZ)V");
+        mID_dispatchFluidSwipeEvent = (*_env)->GetStaticMethodID(_env, FluidSwipeDispatcher, "dispatchFluidSwipeEvent", "(DIZ)V");
+        jfieldID fID_awtWindow = (*_env)->GetFieldID(_env, CPlatformWindow, "target", "Ljava/awt/Window;");
         
-        CHECK_EX_NULL_RET(mID_notifyFluidSwipeBegan)
-        CHECK_NULL_RET(mID_dispatchFluidSwipeEvent)
-        CHECK_NULL_RET(fID_awtWindow)
+        CHECK_EX_NULL_RET(_env, mID_notifyFluidSwipeBegan);
+        CHECK_NULL_RET(mID_dispatchFluidSwipeEvent);
+        CHECK_NULL_RET(fID_awtWindow);
         
         eventMonitor = [NSEvent addLocalMonitorForEventsMatchingMask: NSEventMaskScrollWheel handler: ^(NSEvent* event) { // monitoring application for scroll events
-            @try {
-                if([event buttonNumber] == 0 && [event phase] == NSEventPhaseBegan && [event scrollingDeltaY] == 0.0 && fabs([event scrollingDeltaX]) >= 0 && !gestureActive) {
+            @autoreleasepool {
+                JNIEnv* env = getAppKitEnv();
+                if (!env) {
+                    NSLog(@"getAppKitEnv failed (returned null) ");
+                    return event;
+                }
+                if(isCandidateFluidSwipe(event) && !gestureActive && !gestureWaitingForJavaDecision) {
                     if(![NSEvent isSwipeTrackingFromScrollEventsEnabled]) {
-                        LOG(eu_giulianogorgone_fluidswipe_utils_log_Logging_CONFIG, "candidate event discarded, as fluid-swipe has been disabled in System Preferences/System Settings");
+                        LOG(env, eu_giulianogorgone_fluidswipe_utils_log_Logging_CONFIG, "candidate event discarded, as fluid-swipe has been disabled in System Preferences/System Settings");
                         return event;
                     }
+                    gestureWaitingForJavaDecision = YES;
                     NSWindow* evt_win = [event window]; // window in which event occurred
                     CHECK_NULL_RET_V(evt_win, event) //  since window property is nullable in NSEvent, opportune checks are performed;
                     NSObject* delegate = [evt_win delegate]; // the delegate's class is expected to be AWTWindow
                     CHECK_NULL_RET_V(delegate, event)
                     if(!([delegate isKindOfClass:AWTWindow] && [delegate respondsToSelector:SELjavaPlatformWindow])) { // the latter check might be redundant
-                        LOG(eu_giulianogorgone_fluidswipe_utils_log_Logging_INFO, "the window in which the event occurred is not kind of AWTWindow");
+                        LOG(env, eu_giulianogorgone_fluidswipe_utils_log_Logging_INFO, "the window in which the event occurred is not kind of AWTWindow");
                         return event;
                     }
                     
@@ -237,27 +282,30 @@ JNIEXPORT void JNICALL Java_eu_giulianogorgone_fluidswipe_handlers_macos_impl_Ma
                     jobject platform_window = (*env)->NewLocalRef(env, weakRefPlatformWin); // "[AWTWindow javaPlatformWindow]" is a global weak reference, promoting it to strong reference
                     CHECK_NULL_RET_V(platform_window, event)
                     jobject awtWindow = VALIDATE_REF((*env)->GetObjectField(env, platform_window, fID_awtWindow)); // extracting the AWT/Swing window
-                    CHECK_NULL_RET_V(awtWindow, event)
+                    if(!awtWindow) {
+                        (*env)->DeleteLocalRef(env, platform_window);
+                        return event;
+                    }
                     
-                    LOG(eu_giulianogorgone_fluidswipe_utils_log_Logging_FINEST, "notifying Java clients that a fluid-swipe gesture physically began and may also logically do");
+                    LOG(env, eu_giulianogorgone_fluidswipe_utils_log_Logging_FINEST, "notifying Java clients that a fluid-swipe gesture physically began and may also logically do");
                     
-
-                    currentEvent = [event retain];
+                    
+                    if (currentEvent != event) {
+                        CLEAR(currentEvent);
+                        currentEvent = [event retain];
+                    }
                     // tell Java that a fluid-swipe gesture physically started.
                     (*env)->CallStaticVoidMethod(env, FluidSwipeDispatcher, mID_notifyFluidSwipeBegan, awtWindow, [currentEvent scrollingDeltaX], location.x, location.y, [currentEvent isDirectionInvertedFromDevice]);
-                
+                    
                     (*env)->DeleteLocalRef(env, awtWindow);
                     (*env)->DeleteLocalRef(env, platform_window);
                 }
-            } @catch (NSException *exception) {
-                NSLog(@"%@", [exception callStackSymbols]);
-            } @finally {
-                EXC_CHECK_AND_REPORT(cleanup(env));
+                EXC_CHECK_AND_REPORT(env, cleanup(env));
                 return event;
-            };
+            }
         }];
         libActive = true;
-    }))
+    });
 }
 
 /*
@@ -265,24 +313,27 @@ JNIEXPORT void JNICALL Java_eu_giulianogorgone_fluidswipe_handlers_macos_impl_Ma
  * Method:    nativeVetoFluidSwipe
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_eu_giulianogorgone_fluidswipe_handlers_macos_impl_MacOSFluidSwipeHandler_nativeVetoFluidSwipe(JNIEnv* env, jclass class) {
-    JNI_COCOA(EXECUTE_ON_APPKIT_THREAD_AND_WAIT({
-        LOG(eu_giulianogorgone_fluidswipe_utils_log_Logging_FINEST, "fluid-swipe veto received");
-        CLEAR(currentEvent))
-    })
+JNIEXPORT void JNICALL Java_eu_giulianogorgone_fluidswipe_handlers_macos_impl_MacOSFluidSwipeHandler_nativeVetoFluidSwipe(JNIEnv* envNotAppKit, jclass class) {
+    runOnAppKitThreadAsync(^ {
+        gestureWaitingForJavaDecision = NO;
+        JNIEnv* env = getAppKitEnv();
+        if (!env) {
+            NSLog(@"getAppKitEnv failed (returned null) ");
+            return;
+        }
+        LOG(env, eu_giulianogorgone_fluidswipe_utils_log_Logging_FINEST, "fluid-swipe veto received");
+        CLEAR(currentEvent);
+    });
 }
 
 /*
  * Class:     eu_giulianogorgone_fluidswipe_handlers_macos_impl_MacOSFluidSwipeHandler
  * Method:    nativeLogicallyStartFluidSwipe
- * Signature: ()Z
+ * Signature: ()V
  */
-JNIEXPORT jboolean JNICALL Java_eu_giulianogorgone_fluidswipe_handlers_macos_impl_MacOSFluidSwipeHandler_nativeLogicallyStartFluidSwipe(JNIEnv* env, jclass class) {
-    JNI_COCOA({
-        __block jboolean result = false;
-        EXECUTE_ON_APPKIT_THREAD_AND_WAIT(result = logicallyStartGesture(getAppKitEnv(), currentEvent))
-        return result;
-    })
-    return JNI_FALSE;
+JNIEXPORT void JNICALL Java_eu_giulianogorgone_fluidswipe_handlers_macos_impl_MacOSFluidSwipeHandler_nativeLogicallyStartFluidSwipe(JNIEnv* envNotAppKit, jclass class) {
+    runOnAppKitThreadAsync(^ {
+        logicallyStartGesture(getAppKitEnv(), currentEvent);
+    });
 }
 

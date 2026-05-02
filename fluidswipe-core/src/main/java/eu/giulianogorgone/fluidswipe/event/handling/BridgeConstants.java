@@ -37,8 +37,6 @@ final class BridgeConstants {
     @Native
     static final int CANCELED = 1 << 4;
     @Native
-    static final int ENDED_MASK = COMPLETED | CANCELED;
-    @Native
     static final int UPDATE_STATE = 1 << 5;
     @Native
     private static final int UNHANDLED = -1;

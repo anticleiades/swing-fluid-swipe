@@ -20,10 +20,11 @@ import eu.giulianogorgone.fluidswipe.event.FluidSwipeListener;
 import eu.giulianogorgone.fluidswipe.event.handling.FluidSwipeDispatcher;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.Objects;
 
 /**
- * This class manages the relationship between {@link JComponent}s and the {@link FluidSwipeListener}s
+ * This class manages the relationship between {@link Component}s and the {@link FluidSwipeListener}s
  * attached to them; it can also be used to customize the behavior of the library.
  *
  * @author Giuliano Gorgone (anticleiades)
@@ -37,14 +38,14 @@ public final class FluidSwipe {
     private static boolean continueGestureOnFingerRelease = true;
 
     /**
-     * This method starts event monitoring. Repeated calls have no effects.
+     * This method starts event monitoring. Repeated calls have no effect, but concurrent calls are unsafe.
      */
     public static void startEventMonitoring() {
         FluidSwipeDispatcher.nativeHandler.startEventMonitoring();
     }
 
     /**
-     * This method stops event monitoring. Repeated calls have no effects.
+     * This method stops event monitoring. Repeated calls have no effect, but concurrent calls are unsafe.
      */
     public static void stopEventMonitoring() {
         FluidSwipeDispatcher.nativeHandler.stopEventMonitoring();
@@ -52,14 +53,14 @@ public final class FluidSwipe {
 
 
     /**
-     * This method adds a {@code FluidSwipeListener} to a {@code JComponent} interested in listening for {@code FluidSwipeEvent}s.
+     * This method adds a {@code FluidSwipeListener} to a {@code Component} interested in listening for {@code FluidSwipeEvent}s.
      *
      * @param target   the component interested in listening for {@code FluidSwipeEvent}s
      * @param listener the listener to be added to the specified component
      * @throws NullPointerException if any argument is null.
      * @see FluidSwipeListener
      */
-    public static void addListenerTo(final JComponent target,
+    public static void addListenerTo(final Component target,
                                      final FluidSwipeListener listener) {
         Objects.requireNonNull(target, "target is null");
         Objects.requireNonNull(listener, "listener is null");
@@ -67,7 +68,7 @@ public final class FluidSwipe {
     }
 
     /**
-     * This method removes a {@code FluidSwipeListener} from a {@code JComponent}. If the listener to be removed
+     * This method removes a {@code FluidSwipeListener} from a {@code Component}. If the listener to be removed
      * is not present, this method has no effect.
      *
      * @param target   the component to remove the {@code listener} from
@@ -75,28 +76,30 @@ public final class FluidSwipe {
      * @throws NullPointerException if any argument is null.
      * @see FluidSwipeListener
      */
-    public static void removeListenerFrom(final JComponent target,
+    public static void removeListenerFrom(final Component target,
                                           final FluidSwipeListener listener) {
         Objects.requireNonNull(target, "target is null");
         Objects.requireNonNull(listener, "listener is null");
         final FluidSwipeListenerList listenerList = FluidSwipeListenerList.get(target);
-        if (listenerList != null)
+        if (listenerList != null) {
             listenerList.listenerList.remove(listener);
+            if (listenerList.listenerList.isEmpty()) {
+                FluidSwipeListenerList.uninstall(target);
+            }
+        }
     }
 
     /**
-     * This method removes all {@code FluidSwipeListener}s from a {@code JComponent}. If there are no listeners attached to
+     * This method removes all {@code FluidSwipeListener}s from a {@code Component}. If there are no listeners attached to
      * the component, this method has no effect.
      *
      * @param target the component to remove all {@code listeners} from
      * @throws NullPointerException if target is null
      * @see FluidSwipeListener
      */
-    public static void removeAllListenersFrom(final JComponent target) {
+    public static void removeAllListenersFrom(final Component target) {
         Objects.requireNonNull(target, "target is null");
-        final FluidSwipeListenerList listenerList = FluidSwipeListenerList.get(target);
-        if (listenerList != null)
-            listenerList.listenerList.clear();
+        FluidSwipeListenerList.uninstall(target);
     }
 
     /**
