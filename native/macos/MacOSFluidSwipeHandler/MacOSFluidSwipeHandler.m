@@ -229,26 +229,28 @@ JNIEXPORT void JNICALL Java_eu_giulianogorgone_fluidswipe_handlers_macos_impl_Ma
             return;
         }
         FluidSwipeDispatcher = globalRefOfClass(_env, "eu/giulianogorgone/fluidswipe/event/handling/FluidSwipeDispatcher");
-        CHECK_NULL_RET(FluidSwipeDispatcher);
-        
+        CHECK_NULL_RET(_env, FluidSwipeDispatcher);
+
         SEL SELjavaPlatformWindow = sel_registerName("javaPlatformWindow");
-        Class AWTWindow = NSClassFromString(@"AWTWindow");
-        CHECK_NULL_RET(AWTWindow);
-        
+        Class AWTWindow =  NSClassFromString(@"AWTWindow");
+        if(!AWTWindow) {
+            LOG(_env, eu_giulianogorgone_fluidswipe_utils_log_Logging_SEVERE, "AWTWindow class not found. Cannot initialize the library. Ensure that AWT/Swing is properly initialized.");
+            return;
+        }
         
         LOG(_env, eu_giulianogorgone_fluidswipe_utils_log_Logging_CONFIG, "starting event monitoring");
         
         
         CPlatformWindow = globalRefOfClass(_env, "sun/lwawt/macosx/CPlatformWindow");
-        CHECK_NULL_RET(CPlatformWindow)
+        CHECK_NULL_RET(_env, CPlatformWindow)
         
         jmethodID mID_notifyFluidSwipeBegan = (*_env)->GetStaticMethodID(_env, FluidSwipeDispatcher, "notifyFluidSwipeBeganAsync", "(Ljava/awt/Window;DDDZ)V");
         mID_dispatchFluidSwipeEvent = (*_env)->GetStaticMethodID(_env, FluidSwipeDispatcher, "dispatchFluidSwipeEvent", "(DIZ)V");
         jfieldID fID_awtWindow = (*_env)->GetFieldID(_env, CPlatformWindow, "target", "Ljava/awt/Window;");
         
         CHECK_EX_NULL_RET(_env, mID_notifyFluidSwipeBegan);
-        CHECK_NULL_RET(mID_dispatchFluidSwipeEvent);
-        CHECK_NULL_RET(fID_awtWindow);
+        CHECK_NULL_RET(_env, mID_dispatchFluidSwipeEvent);
+        CHECK_NULL_RET(_env, fID_awtWindow);
         
         eventMonitor = [NSEvent addLocalMonitorForEventsMatchingMask: NSEventMaskScrollWheel handler: ^(NSEvent* event) { // monitoring application for scroll events
             @autoreleasepool {
@@ -264,9 +266,9 @@ JNIEXPORT void JNICALL Java_eu_giulianogorgone_fluidswipe_handlers_macos_impl_Ma
                     }
                     gestureWaitingForJavaDecision = YES;
                     NSWindow* evt_win = [event window]; // window in which event occurred
-                    CHECK_NULL_RET_V(evt_win, event) //  since window property is nullable in NSEvent, opportune checks are performed;
-                    NSObject* delegate = [evt_win delegate]; // the delegate's class is expected to be AWTWindow
-                    CHECK_NULL_RET_V(delegate, event)
+                    CHECK_NULL_RET_V(env, evt_win, event) //  since window property is nullable in NSEvent, opportune checks are performed;
+                    NSObject* delegate = [evt_win delegate]; //the delegate's class is expected to be AWTWindow
+                    CHECK_NULL_RET_V(env, delegate, event)
                     if(!([delegate isKindOfClass:AWTWindow] && [delegate respondsToSelector:SELjavaPlatformWindow])) { // the latter check might be redundant
                         LOG(env, eu_giulianogorgone_fluidswipe_utils_log_Logging_INFO, "the window in which the event occurred is not kind of AWTWindow");
                         return event;
@@ -277,10 +279,10 @@ JNIEXPORT void JNICALL Java_eu_giulianogorgone_fluidswipe_handlers_macos_impl_Ma
                     
                     
                     jobject weakRefPlatformWin = VALIDATE_REF((jobject) [delegate performSelector:SELjavaPlatformWindow]);
-                    CHECK_NULL_RET_V(weakRefPlatformWin, event)
+                    CHECK_NULL_RET_V(env, weakRefPlatformWin, event)
                     
                     jobject platform_window = (*env)->NewLocalRef(env, weakRefPlatformWin); // "[AWTWindow javaPlatformWindow]" is a global weak reference, promoting it to strong reference
-                    CHECK_NULL_RET_V(platform_window, event)
+                    CHECK_NULL_RET_V(env, platform_window, event)
                     jobject awtWindow = VALIDATE_REF((*env)->GetObjectField(env, platform_window, fID_awtWindow)); // extracting the AWT/Swing window
                     if(!awtWindow) {
                         (*env)->DeleteLocalRef(env, platform_window);

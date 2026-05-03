@@ -31,17 +31,18 @@ do { \
     } \
 } while(0); \
 
-#define CHECK_NULL_RET_V(ref, ret) \
+#define CHECK_NULL_RET_V(____env, ref, ret) \
     if(!ref) { \
+        LOG(____env, eu_giulianogorgone_fluidswipe_utils_log_Logging_FINEST, #ref" is null");\
         return ret; \
     } \
 
-#define CHECK_NULL_RET(ref) \
-    CHECK_NULL_RET_V(ref,) \
+#define CHECK_NULL_RET(____env, ref) \
+    CHECK_NULL_RET_V(____env, ref,) \
 
 #define CHECK_EX_NULL_RET_V(___env, ref, ret) \
     EXC_CHECK_AND_REPORT(___env, {}); \
-    CHECK_NULL_RET_V(ref, ret) \
+    CHECK_NULL_RET_V(___env, ref, ret) \
 
 
 #define CHECK_EX_NULL_RET(___env, ref) \
