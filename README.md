@@ -15,35 +15,20 @@ This project is available on Maven Central:
 <dependency>
   <groupId>eu.giulianogorgone</groupId>
   <artifactId>fluidswipe-core</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
 </dependency>
 ````
 ### Gradle
 ````kotlin
-implementation("eu.giulianogorgone:fluidswipe-core:1.1.0")
-````
-
-You can also use the latest nightly build.
-````kotlin
-repositories {
-    maven {
-        url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots")
-    }
-}
-
-configurations.all {
-    resolutionStrategy.cacheChangingModulesFor(0, "seconds")
-}
-
-dependencies {
-    implementation("eu.giulianogorgone:fluidswipe-core:latest.integration")
-}
+implementation("eu.giulianogorgone:fluidswipe-core:1.1.1")
 ````
 
 To start event monitoring:
 ````java
 FluidSwipe.startEventMonitoring();
 ````
+Please note that the above function internally calls ````Toolkit.getDefaultToolkit()````.
+
 To stop instead event monitoring:
 ````java
 FluidSwipe.stopEventMonitoring();
