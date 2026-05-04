@@ -224,7 +224,11 @@ public final class FluidSwipeDispatcher {
 
     // Tells whether a component vetoes the incoming fluid-swipe gesture.
     static boolean eventVetoedByComponent(final Component component, final FluidSwipeEvent e) {
-        return component instanceof FluidSwipeVetoer && !((FluidSwipeVetoer) component).permitFluidSwipeGesture(e);
+        if (component instanceof FluidSwipeVetoer)
+            return !((FluidSwipeVetoer) component).permitFluidSwipeGesture(e);
+        if (component instanceof JScrollPane)
+            return !scrollSwipeCoexImpl((JScrollPane) component, e);
+        return false;
     }
 
     static Pair<Component, FluidSwipeListener[]> getTargetFromDeepest(Component deepest) {
@@ -247,5 +251,13 @@ public final class FluidSwipeDispatcher {
             return null;
         }
         return new Pair<>(targetComponent, listenerList.copyListeners());
+    }
+
+    private static boolean scrollSwipeCoexImpl(JScrollPane scrollPane, FluidSwipeEvent e) {
+        final FluidSwipeEvent.Direction contentDirection    = e.getLogicalGestureDirection();
+        JScrollBar                      horizontalScrollBar = scrollPane.getHorizontalScrollBar();
+        if (horizontalScrollBar == null || scrollPane.getHorizontalScrollBarPolicy() == JScrollPane.HORIZONTAL_SCROLLBAR_NEVER) return true;
+        return (contentDirection == FluidSwipeEvent.Direction.RIGHT_TO_LEFT && (horizontalScrollBar.getValue() + horizontalScrollBar.getModel().getExtent()) == horizontalScrollBar.getMaximum())
+               || (contentDirection == FluidSwipeEvent.Direction.LEFT_TO_RIGHT && horizontalScrollBar.getValue() == horizontalScrollBar.getMinimum());
     }
 }

@@ -15,12 +15,12 @@ This project is available on Maven Central:
 <dependency>
   <groupId>eu.giulianogorgone</groupId>
   <artifactId>fluidswipe-core</artifactId>
-  <version>1.1.1</version>
+  <version>1.2.0</version>
 </dependency>
 ````
 ### Gradle
 ````kotlin
-implementation("eu.giulianogorgone:fluidswipe-core:1.1.1")
+implementation("eu.giulianogorgone:fluidswipe-core:1.2.0")
 ````
 
 To start event monitoring:
@@ -86,8 +86,8 @@ In order for fluid-swipe gesture to work, the following conditions must be met, 
 #### Conflicting gestures — implementation of a scroll/fluid-swipe coexistence mechanism
 
 The physical gesture that may start a fluid-swipe can also be interpreted as a horizontal scroll gesture.
-It is **absolutely recommended** that components listening for scroll-wheel events, notably  `JScrollPane`, implement `FluidSwipeVetoer`, in order to avoid unexpected behaviours.
-Ideally, fluid-swipe gesture should have a lower priority than scroll event. To achieve that, veto the fluid-swipe when it is appropriate.
+It is **absolutely recommended** that components listening for scroll-wheel events implement `FluidSwipeVetoer`; not to veto an incoming fluid-swipe results in `MouseWheelEvent` not to be dispatching as expected.
+Ideally, fluid-swipe gesture should have a lower priority than scroll event.
 We strongly encourage you to consider the following example involving a `JScrollPane`.
 ```java
 public class FluidSwipeAwareJScrollPane extends JScrollPane implements FluidSwipeVetoer {
@@ -101,7 +101,7 @@ public class FluidSwipeAwareJScrollPane extends JScrollPane implements FluidSwip
     }
 }
 ```
-Please be also aware that not to veto an incoming fluid-swipe results in `MouseWheelEvent` not to be dispatching as expected.
+Starting from version 1.2.0, the above logic is default for `JScrollPane`; to override it, extend `JScrollPane` and implement `FluidSwipeVetoer`.
 
 ## HW/SW Requirements
 - OS:macOS/OS X >= 10.13.

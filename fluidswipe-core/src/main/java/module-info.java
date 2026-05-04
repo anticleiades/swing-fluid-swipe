@@ -22,7 +22,6 @@ module fluidswipe.core {
     exports eu.giulianogorgone.fluidswipe;
     exports eu.giulianogorgone.fluidswipe.event;
     exports eu.giulianogorgone.fluidswipe.components;
-    exports eu.giulianogorgone.fluidswipe.components.impl;
 
     requires transitive java.desktop;
     requires fluidswipe.handler.api;
