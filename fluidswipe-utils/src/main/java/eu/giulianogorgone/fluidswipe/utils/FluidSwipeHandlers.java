@@ -19,6 +19,8 @@ import eu.giulianogorgone.fluidswipe.handlers.FluidSwipeHandler;
 import eu.giulianogorgone.fluidswipe.handlers.impl.NopFluidSwipeHandler;
 import eu.giulianogorgone.fluidswipe.handlers.macos.impl.MacOSFluidSwipeHandler;
 
+import java.awt.*;
+
 /**
  * @author Giuliano Gorgone (anticleiades)
  */
@@ -28,6 +30,13 @@ public final class FluidSwipeHandlers {
     public static FluidSwipeHandler getHandler() {
         Logging.init("FluidSwipe", ConfigFlags.logLevel, ConfigFlags.logFilePath);
         Logging.logConfig(SysInfo.getDBGInfo());
+        try {
+            // ensure that AWT/Swing is properly initialized.
+            Logging.logConfig("Toolkit: " + Toolkit.getDefaultToolkit().getClass().getName());
+        } catch (Exception ex) {
+            Logging.logSevere("Cannot initialize Toolkit", ex);
+            return new NopFluidSwipeHandler();
+        }
         if (SysInfo.IS_SUPPORTED_MAC_OS && NativeLib.extractAndLoadFromJAR(MacOSFluidSwipeHandler.class, MAC_OS_LIB_FNAME)) {
             // any platform-specific implementation library must expose the "_Java_it_anticleiades_utils_log_Logging_initNative" symbol
             Logging.initNative(ConfigFlags.logLevel);
