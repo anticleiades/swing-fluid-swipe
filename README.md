@@ -3,10 +3,10 @@
 
 Extend the Swing framework with fluid-swipe gesture support. Our aim is to reduce the gap between native applications and AWT/Swing applications, providing a more consistent and pleasant UI/UX with animated feedback.
 
+https://github.com/user-attachments/assets/d26b13eb-5538-4bd7-a9cd-76e4e30fd099
+
 ### macOS/OS X case
 Support for the fluid-swipe gesture that is largely used for navigation in many AppKit-built programs, notably Safari, Xcode and Photos, is not offered by JDK – in fact, as far as swipe gestures are concerned, the JDK supports only the discrete ones (namely, 3-finger swipe gestures via  `com.apple.eawt.event`)
-
-https://github.com/anticleiades/swing-fluid-swipe/assets/97770968/a6839873-1d95-43ed-821c-9702ccc23a38
 
 ## Usage
 This project is available on Maven Central:
